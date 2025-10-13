@@ -8,43 +8,26 @@
 import Observation
 import SwiftUI
 
-extension View {
-    func amount(_ value: Double) -> some View {
-        var color: Color = .red
-        if value < 10 {
-            color = .green
-        } else if value < 100 {
-            color = .orange
-        }
-        
-        return self.foregroundStyle(color)
-    }
-}
+
 
 struct ContentView: View {
     @State private var expenses = Expenses()
     @State private var isShowingAdd = false
     
-    let localCurrency = Locale.current.currency?.identifier ?? "EUR"
-    
     var body: some View {
         NavigationStack {
             List {
-                ForEach(expenses.items) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
-                        }
-                        
-                        Spacer()
-                        
-                        Text(item.amount, format: .currency(code: localCurrency))
-                            .amount(item.amount)
-                    }
-                }
-                .onDelete(perform: removeItems)
+                ExpenseSection(
+                    title: "Personal",
+                    expenses: expenses.personalItems,
+                    deleteItems: removePersonalItems
+                )
+                
+                ExpenseSection(
+                    title: "Business",
+                    expenses: expenses.businessItems,
+                    deleteItems: removeBusinessItems
+                )
             }
             .navigationTitle("iExpense")
             .toolbar {
@@ -58,8 +41,26 @@ struct ContentView: View {
         }
     }
     
-    func removeItems(at offsets: IndexSet) {
-        expenses.items.remove(atOffsets: offsets)
+    func removeItems(at offsets: IndexSet, in inputArray: [ExpenseItem]) {
+        var indexesToDelete = IndexSet()
+
+        for offset in offsets {
+            let item = inputArray[offset]
+
+            if let index = expenses.items.firstIndex(of: item) {
+                indexesToDelete.insert(index)
+            }
+        }
+
+        expenses.items.remove(atOffsets: indexesToDelete)
+    }
+    
+    func removePersonalItems(at offsets: IndexSet) {
+        removeItems(at: offsets, in: expenses.personalItems)
+    }
+
+    func removeBusinessItems(at offsets: IndexSet) {
+        removeItems(at: offsets, in: expenses.businessItems)
     }
 }
 
