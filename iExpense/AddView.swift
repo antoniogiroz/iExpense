@@ -33,11 +33,20 @@ struct AddView: View {
                 TextField("Amount", value: $amount, format: .currency(code: localCurrency))
             }
             .navigationTitle("Add new expense")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                Button("Save", systemImage: "checkmark") {
-                    let newExpense = ExpenseItem(name: name, type: type, amount: amount)
-                    expenses.items.append(newExpense)
-                    dismiss()
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", role: .confirm) {
+                        let newExpense = ExpenseItem(name: name, type: type, amount: amount)
+                        expenses.items.append(newExpense)
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", role: .cancel) {
+                        dismiss()
+                    }
                 }
             }
         }
